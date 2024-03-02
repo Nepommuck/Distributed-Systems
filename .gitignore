@@ -1,0 +1,8 @@
+examples/
+tasks/
+
+.idea/
+.vscode/
+.bsp/
+.metals/
+target/
