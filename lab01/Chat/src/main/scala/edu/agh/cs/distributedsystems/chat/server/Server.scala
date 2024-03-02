@@ -13,7 +13,9 @@ class Server(val port: Int) extends Runnable {
   def handleMessage(message: ProtocolMessage, clientSocket: Socket): Unit = {
     println(s"Received ${message.flag} message `${message.message}` " +
       s"from ${message.senderLogin} (${clientSocket.getRemoteSocketAddress})")
-    connections.foreach {
+    connections.toList
+      .filter(_.clientSocket.getRemoteSocketAddress != clientSocket.getRemoteSocketAddress)
+      .foreach {
       _.sendMessage(message)
     }
   }

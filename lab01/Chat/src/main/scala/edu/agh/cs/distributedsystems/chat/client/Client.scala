@@ -3,6 +3,7 @@ package edu.agh.cs.distributedsystems.chat.client
 import edu.agh.cs.distributedsystems.chat.AppConfig
 import edu.agh.cs.distributedsystems.chat.common.{ProtocolMessage, TCPMessage}
 
+import scala.annotation.tailrec
 import scala.io.StdIn.readLine
 
 case class Client(login: String) extends Runnable {
@@ -22,7 +23,7 @@ case class Client(login: String) extends Runnable {
       .split('\n')
       .mkString(start = startLine, sep = s"\n$startLine", end = "")
 
-    println(s"\n${protocolMessage.senderLogin}:\n$messageToDisplay\n")
+    println(s"${protocolMessage.senderLogin}:\n$messageToDisplay")
     printCommandPrompt()
   }
 
@@ -35,18 +36,17 @@ case class Client(login: String) extends Runnable {
     print("> ")
   }
 
+  @tailrec
   private def readUserInput(previousLines: List[String] = List.empty): String = {
-    printCommandPrompt()
+    previousLines match {
+      case Nil =>
+        printCommandPrompt()
+      case _ =>
+        print("| ")
+    }
     readLine() match {
-      case "" =>
-        val userInput = previousLines.mkString(sep = "\n")
-        if (userInput.nonEmpty) {
-          println()
-        }
-        userInput
-
-      case nextLine =>
-        readUserInput(previousLines :+ nextLine)
+      case "" => previousLines.mkString(sep = "\n")
+      case nextLine => readUserInput(previousLines :+ nextLine)
     }
   }
 
