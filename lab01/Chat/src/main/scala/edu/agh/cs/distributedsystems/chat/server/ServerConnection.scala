@@ -1,4 +1,4 @@
-package edu.agh.cs.distributedsystems.chat
+package edu.agh.cs.distributedsystems.chat.server
 
 import java.io.{BufferedReader, InputStreamReader, PrintWriter}
 import java.net.Socket

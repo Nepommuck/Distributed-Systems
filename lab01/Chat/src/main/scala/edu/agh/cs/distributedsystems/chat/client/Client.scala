@@ -1,4 +1,6 @@
-package edu.agh.cs.distributedsystems.chat
+package edu.agh.cs.distributedsystems.chat.client
+
+import edu.agh.cs.distributedsystems.chat.AppConfig
 
 import scala.io.StdIn.readLine
 
@@ -7,9 +9,8 @@ class Client extends Runnable {
     client = this,
     serverHostname = AppConfig.ServeHostname,
     serverPort = AppConfig.ServerPort,
-    onServerConnectionTermination = handleServerConnectionTermination,
+    onServerConnectionTermination = handleServerConnectionTermination
   )
-  private val clientThread = Thread.currentThread()
   private val connectionThread = new Thread(connection)
   connectionThread.start()
 
@@ -21,8 +22,8 @@ class Client extends Runnable {
 
   private def handleServerConnectionTermination(): Unit = {
     println()
-    println("Connection with server terminated.")
-    clientThread.interrupt()
+    println("Connection with server was terminated.")
+    sys.exit(-1)
   }
 
   override def run(): Unit = try {
@@ -30,8 +31,6 @@ class Client extends Runnable {
       print("> ")
       val newMessage = readLine()
       connection.sendMessage(newMessage)
-      Thread.currentThread()
-      //    Thread.sleep(500)
     }
   } finally {
     connectionThread.interrupt()
