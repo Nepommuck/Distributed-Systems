@@ -1,5 +1,7 @@
 package edu.agh.cs.distributedsystems.chat.server
 
+import edu.agh.cs.distributedsystems.chat.common.ProtocolMessage
+
 import java.net.{ServerSocket, Socket}
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -8,8 +10,9 @@ class Server(val port: Int) extends Runnable {
   private val serverSocket = new ServerSocket(port)
   private val connections = mutable.ListBuffer.empty[ServerConnection]
 
-  def handleMessage(message: String, clientSocket: Socket): Unit = {
-    println(s"Received message `$message` from ${clientSocket.getPort}")
+  def handleMessage(message: ProtocolMessage, clientSocket: Socket): Unit = {
+    println(s"Received ${message.flag} message `${message.message}` " +
+      s"from ${message.senderLogin} (${clientSocket.getRemoteSocketAddress})")
     connections.foreach {
       _.sendMessage(message)
     }

@@ -1,5 +1,7 @@
 package edu.agh.cs.distributedsystems.chat.client
 
+import edu.agh.cs.distributedsystems.chat.common.ProtocolMessage
+
 import java.io.{BufferedReader, InputStreamReader, PrintWriter}
 import java.net.{ConnectException, Socket}
 import scala.annotation.tailrec
@@ -21,18 +23,21 @@ class ClientConnection(
   private val out = new PrintWriter(clientSocket.getOutputStream, true)
   private val in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream))
 
-  def sendMessage(message: String): Unit = {
-    out.println(message)
+  def sendMessage(message: ProtocolMessage): Unit = {
+    message.encode.foreach(out.println)
   }
 
   @tailrec
   private def listenForMessages(): Unit = {
-    val serverMessage = in.readLine()
+    val serverRawMessage = in.readLine()
 
-    if (serverMessage == null) {
+    if (serverRawMessage == null) {
       onServerConnectionTermination()
     } else {
-      client.receiveMessage(serverMessage)
+      ProtocolMessage.decodeRawMessage(rawMessage = serverRawMessage) match {
+        case Some(protocolMessage) =>
+          client.receiveMessage(protocolMessage)
+      }
       listenForMessages()
     }
   }
