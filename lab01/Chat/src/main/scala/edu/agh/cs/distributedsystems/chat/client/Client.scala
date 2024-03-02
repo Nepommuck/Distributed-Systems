@@ -22,7 +22,7 @@ case class Client(login: String) extends Runnable {
       .split('\n')
       .mkString(start = startLine, sep = s"\n$startLine", end = "")
 
-    println(s"${protocolMessage.senderLogin}:\n$messageToDisplay\n")
+    println(s"\n${protocolMessage.senderLogin}:\n$messageToDisplay\n")
     printCommandPrompt()
   }
 
@@ -39,8 +39,11 @@ case class Client(login: String) extends Runnable {
     printCommandPrompt()
     readLine() match {
       case "" =>
-        println()
-        previousLines.mkString(sep = "\n")
+        val userInput = previousLines.mkString(sep = "\n")
+        if (userInput.nonEmpty) {
+          println()
+        }
+        userInput
 
       case nextLine =>
         readUserInput(previousLines :+ nextLine)
