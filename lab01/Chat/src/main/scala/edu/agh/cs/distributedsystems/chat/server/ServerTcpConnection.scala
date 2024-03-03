@@ -1,12 +1,12 @@
 package edu.agh.cs.distributedsystems.chat.server
 
-import edu.agh.cs.distributedsystems.chat.common.ProtocolMessage
+import edu.agh.cs.distributedsystems.chat.common.{ProtocolMessage, TcpMessage}
 
 import java.io.{BufferedReader, InputStreamReader, PrintWriter}
 import java.net.Socket
 import scala.annotation.tailrec
 
-class ServerConnection(val clientSocket: Socket, val server: Server) extends Runnable {
+class ServerTcpConnection(val clientSocket: Socket, val server: Server) extends Runnable {
   val out = new PrintWriter(clientSocket.getOutputStream, true)
   val in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream))
 
@@ -23,9 +23,9 @@ class ServerConnection(val clientSocket: Socket, val server: Server) extends Run
 
     if (receivedRawMessage != null) {
       ProtocolMessage.decodeRawMessage(rawMessage = receivedRawMessage) match {
-        case Some(protocolMessage) =>
-          server.handleMessage(protocolMessage, clientSocket)
-        case None =>
+        case Some(protocolMessage: TcpMessage) =>
+          server.handleTcpMessage(protocolMessage, clientSocket)
+        case _ =>
           println(s"Received invalid message: `$receivedRawMessage`")
       }
       listenForMessages()
@@ -35,7 +35,7 @@ class ServerConnection(val clientSocket: Socket, val server: Server) extends Run
   override def run(): Unit = try {
     listenForMessages()
   } finally {
-    server.terminateConnection(connection = this)
+    server.terminateTcpConnection(connection = this)
     clientSocket.close()
   }
 }

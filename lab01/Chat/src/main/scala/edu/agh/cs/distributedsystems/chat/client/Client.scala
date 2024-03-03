@@ -1,21 +1,29 @@
 package edu.agh.cs.distributedsystems.chat.client
 
 import edu.agh.cs.distributedsystems.chat.AppConfig
-import edu.agh.cs.distributedsystems.chat.common.{ProtocolMessage, TCPMessage}
+import edu.agh.cs.distributedsystems.chat.common.{ProtocolFlag, ProtocolMessage, TcpMessage, TcpTransmission, UdpTransmissionMessage, UdpTransmission}
 
 import scala.annotation.tailrec
 import scala.io.StdIn.readLine
 
 case class Client(login: String) extends Runnable {
 
-  private val connection = new ClientConnection(
+  private val tcpConnection = new ClientTcpConnection(
     client = this,
     serverHostname = AppConfig.ServeHostname,
     serverPort = AppConfig.ServerPort,
-    onServerConnectionTermination = handleServerConnectionTermination
+    onServerConnectionTermination = handleServerTcpConnectionTermination
   )
-  private val connectionThread = new Thread(connection)
-  connectionThread.start()
+  private val tcpConnectionThread = new Thread(tcpConnection)
+
+  private val udpConnection = new ClientUdpConnection(
+    client = this,
+    serverHostname = AppConfig.ServeHostname,
+    serverPort = AppConfig.ServerPort,
+  )
+
+  tcpConnectionThread.start()
+  new Thread(udpConnection).start()
 
   def receiveMessage(protocolMessage: ProtocolMessage): Unit = {
     val startLine = "  | "
@@ -27,7 +35,7 @@ case class Client(login: String) extends Runnable {
     printCommandPrompt()
   }
 
-  private def handleServerConnectionTermination(): Unit = {
+  private def handleServerTcpConnectionTermination(): Unit = {
     println("\n" + "Connection with server was terminated.")
     sys.exit(-1)
   }
@@ -37,25 +45,43 @@ case class Client(login: String) extends Runnable {
   }
 
   @tailrec
-  private def readUserInput(previousLines: List[String] = List.empty): String = {
+  private def readUserInput(
+                             previousLines: List[String] = List.empty,
+                             protocolFlag: ProtocolFlag = TcpTransmission
+                           ): (String, ProtocolFlag) = {
     previousLines match {
       case Nil =>
         printCommandPrompt()
       case _ =>
         print("| ")
     }
-    readLine() match {
-      case "" => previousLines.mkString(sep = "\n")
-      case nextLine => readUserInput(previousLines :+ nextLine)
+    val userInputLine = readLine()
+    userInputLine match {
+      case "" => (previousLines.mkString(sep = "\n"), protocolFlag)
+      case nextLine
+        if nextLine.trim.startsWith(s"-${UdpTransmission.encodedValue}") && previousLines.isEmpty =>
+        val restOfLine = nextLine
+          .split(s"-${UdpTransmission.encodedValue}")
+          .tail
+          .mkString(sep = "")
+        val allLines = if(restOfLine.isBlank) previousLines else previousLines :+ restOfLine
+        readUserInput(allLines, protocolFlag = UdpTransmission)
+
+      case nextLine => readUserInput(previousLines :+ nextLine, protocolFlag)
     }
   }
 
   override def run(): Unit = try {
     while (true) {
-      val newMessage = readUserInput()
-      connection.sendMessage(new TCPMessage(senderLogin = login, message = newMessage))
+      readUserInput() match {
+        case (newMessage, TcpTransmission) =>
+          tcpConnection.sendMessage(TcpMessage(senderLogin = login, message = newMessage))
+
+        case (newMessage, UdpTransmission) =>
+          udpConnection.sendMessage(UdpTransmissionMessage(senderLogin = login, message = newMessage))
+      }
     }
   } finally {
-    connectionThread.interrupt()
+    tcpConnectionThread.interrupt()
   }
 }
