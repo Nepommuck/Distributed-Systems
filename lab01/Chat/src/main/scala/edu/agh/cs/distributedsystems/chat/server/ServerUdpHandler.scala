@@ -1,6 +1,7 @@
 package edu.agh.cs.distributedsystems.chat.server
 
-import edu.agh.cs.distributedsystems.chat.common.{ProtocolMessage, UdpMessage, UdpRegistrationMessage, UdpTransmissionMessage}
+import edu.agh.cs.distributedsystems.chat.common.{ProtocolMessage, UdpMessage, UdpTransmissionMessage}
+import edu.agh.cs.distributedsystems.chat.util.Logging
 
 import java.net.{DatagramPacket, DatagramSocket, InetAddress}
 import scala.annotation.tailrec
@@ -13,13 +14,13 @@ object UdpClient {
     UdpClient(address = receivedPacket.getAddress, port = receivedPacket.getPort)
 }
 
-case class ServerUdpHandler(server: Server) extends Runnable {
+case class ServerUdpHandler(server: Server) extends Runnable with Logging {
   private val socket = new DatagramSocket(server.port)
   private val registeredClients = mutable.ListBuffer.empty[UdpClient]
 
   private def sendMessage(udpMessage: UdpTransmissionMessage, sender: UdpClient): Unit = {
     udpMessage.encode match {
-      case None => println(s"Failed to encode an UDP message: '$udpMessage'")
+      case None => logger.error(s"Failed to encode an UDP message: '$udpMessage'")
       case Some(encodedMessage) =>
         registeredClients.toList
           .filter(_ != sender)
@@ -56,7 +57,7 @@ case class ServerUdpHandler(server: Server) extends Runnable {
           case _ => ()
         }
       case _ =>
-        println(s"Received invalid UDP message: '$receivedRawMessage'")
+        logger.error(s"Received invalid UDP message: '$receivedRawMessage'")
     }
     listenForMessages()
   }

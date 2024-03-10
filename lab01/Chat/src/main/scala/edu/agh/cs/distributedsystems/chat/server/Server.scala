@@ -1,12 +1,13 @@
 package edu.agh.cs.distributedsystems.chat.server
 
-import edu.agh.cs.distributedsystems.chat.common.{ProtocolMessage, TcpMessage, UdpMessage, UdpRegistrationMessage, UdpTransmissionMessage}
+import edu.agh.cs.distributedsystems.chat.common._
+import edu.agh.cs.distributedsystems.chat.util.Logging
 
 import java.net.{ServerSocket, Socket, SocketAddress}
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-class Server(val port: Int) extends Runnable {
+class Server(val port: Int) extends Runnable with Logging {
   private val serverSocket = new ServerSocket(port)
   private val tcpConnections = mutable.ListBuffer.empty[ServerTcpConnection]
 
@@ -18,14 +19,14 @@ class Server(val port: Int) extends Runnable {
     tcpConnections.toList
       .filter(_.clientSocket.getRemoteSocketAddress != clientSocket.getRemoteSocketAddress)
       .foreach {
-      _.sendMessage(message)
-    }
+        _.sendMessage(message)
+      }
   }
 
   def handleUdpMessage(message: UdpMessage, address: SocketAddress): Unit = {
     message match {
       case UdpRegistrationMessage(login) =>
-        println(s"User $login ($address) registered via UDP")
+        logger.info(s"User $login ($address) registered via UDP")
       case _: UdpTransmissionMessage =>
         logIncomingMessage(message, address)
     }
@@ -33,12 +34,12 @@ class Server(val port: Int) extends Runnable {
 
   def terminateTcpConnection(connection: ServerTcpConnection): Unit = {
     tcpConnections.filterInPlace(_ != connection)
-    println(s"Finished connection with `${connection.clientSocket.getRemoteSocketAddress}`")
+    logger.info(s"Finished connection with `${connection.clientSocket.getRemoteSocketAddress}`")
   }
 
   private def logIncomingMessage(message: ProtocolMessage, address: SocketAddress): Unit = {
-    println(s"Received ${message.protocolFlag} message '${message.message}' " +
-      s"from ${message.senderLogin} (${address})")
+    logger.info(s"Received ${message.protocolFlag} message '${message.message}' " +
+      s"from ${message.senderLogin} ($address)")
   }
 
   private def establishTcpConnection(clientSocket: Socket): Unit = {
@@ -46,7 +47,7 @@ class Server(val port: Int) extends Runnable {
     tcpConnections.addOne(newConnection)
 
     new Thread(newConnection).start()
-    println(s"Established TCP connection with '${clientSocket.getRemoteSocketAddress}'")
+    logger.info(s"Established TCP connection with '${clientSocket.getRemoteSocketAddress}'")
   }
 
   @tailrec
@@ -57,7 +58,7 @@ class Server(val port: Int) extends Runnable {
   }
 
   override def run(): Unit = try {
-    println("=== Server started ===")
+    logger.info("SERVER STARTED")
 
     listenForNewTcpConnections()
   } finally {
