@@ -6,3 +6,5 @@ tasks/
 .bsp/
 .metals/
 target/
+
+*.jar
