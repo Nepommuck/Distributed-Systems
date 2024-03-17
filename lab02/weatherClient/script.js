@@ -1,7 +1,8 @@
+var apiKey = ""
 const baseUrl = "http://localhost:8080";
 
 function getWeather(locationName) {
-  return fetch(`${baseUrl}/weather/${locationName}`).then((response) => {
+  return fetch(`${baseUrl}/weather/${locationName}?key=${apiKey}`).then((response) => {
     if (!response.ok) {
       throw new Error(`Request failed with status: ${response.status}`);
     }
@@ -10,7 +11,7 @@ function getWeather(locationName) {
 }
 
 function getAllLocations() {
-  return fetch(`${baseUrl}/locations`).then((response) => {
+  return fetch(`${baseUrl}/locations?key=${apiKey}`).then((response) => {
     if (!response.ok) {
         throw new Error(`Request failed with status: ${response.status}`);
     }
@@ -18,8 +19,8 @@ function getAllLocations() {
   });
 }
 
-function addLocation(name, lon, lat) {
-  return fetch(`${baseUrl}/locations?name=${name}&lat=${lat}&lon=${lon}`, {
+function addLocation(name, lat, lon) {
+  return fetch(`${baseUrl}/locations?name=${name}&lat=${lat}&lon=${lon}&key=${apiKey}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -33,7 +34,7 @@ function addLocation(name, lon, lat) {
 }
 
 function deleteLocation(id) {
-    return fetch(`${baseUrl}/locations/${id}`, {
+    return fetch(`${baseUrl}/locations/${id}?key=${apiKey}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -127,6 +128,11 @@ function showWeatherForecast(weatherData) {
     );
   });
   document.getElementById("weather-results").innerHTML = resultHtlm;
+}
+
+function updateApiKey() {
+    apiKey = document.getElementById("api-key").value
+    displayLocations()
 }
 
 function displayError(message) {
