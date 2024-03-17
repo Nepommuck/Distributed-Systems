@@ -1,4 +1,4 @@
-package edu.agh.cs.distributedsystems.weatherapi.integrations.config
+package edu.agh.cs.distributedsystems.weatherapi.config
 
 import edu.agh.cs.distributedsystems.weatherapi.persistence.MockPersistenceManager
 import edu.agh.cs.distributedsystems.weatherapi.persistence.PersistenceManager

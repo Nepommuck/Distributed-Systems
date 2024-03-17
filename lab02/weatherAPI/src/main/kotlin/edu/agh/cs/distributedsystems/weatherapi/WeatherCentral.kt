@@ -1,5 +1,6 @@
 package edu.agh.cs.distributedsystems.weatherapi
 
+import edu.agh.cs.distributedsystems.weatherapi.config.ActiveIntegrations
 import edu.agh.cs.distributedsystems.weatherapi.integrations.WeatherApiIntegration
 import edu.agh.cs.distributedsystems.weatherapi.integrations.weatherbit.WeatherbitApiIntegration
 import edu.agh.cs.distributedsystems.weatherapi.model.*
@@ -7,10 +8,6 @@ import kotlin.math.max
 import kotlin.math.min
 
 object WeatherCentral {
-    private val integrations: List<WeatherApiIntegration> = listOf(
-        WeatherbitApiIntegration(),
-    )
-
     private fun calculateDailyTotal(allData: List<TemperatureData>): TemperatureData {
         fun loop(
             remainingData: List<TemperatureData>,
@@ -37,7 +34,7 @@ object WeatherCentral {
     }
 
     fun getWeather(coordinates: Coordinates): SummaryWeather = SummaryWeather(
-        integrations
+        ActiveIntegrations.integrations
             .mapNotNull { it.getWeatherFor(coordinates) }
             .flatMap { it.dailyTemperatures.toList() }
             .groupBy { (date, _) -> date }

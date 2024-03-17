@@ -1,46 +1,43 @@
-package edu.agh.cs.distributedsystems.weatherapi.integrations.meteosource
+package edu.agh.cs.distributedsystems.weatherapi.integrations.weatherbit
 
 import com.google.gson.GsonBuilder
 import edu.agh.cs.distributedsystems.weatherapi.integrations.WeatherApiIntegration
 import edu.agh.cs.distributedsystems.weatherapi.integrations.ApiKeys
 import edu.agh.cs.distributedsystems.weatherapi.integrations.ApiUrls
-import edu.agh.cs.distributedsystems.weatherapi.integrations.meteosource.model.MeteosourceResponse
+import edu.agh.cs.distributedsystems.weatherapi.integrations.weatherbit.model.WeatherbitResponse
 import edu.agh.cs.distributedsystems.weatherapi.model.Coordinates
 import edu.agh.cs.distributedsystems.weatherapi.model.Temperature
 import edu.agh.cs.distributedsystems.weatherapi.model.TemperatureData
 import edu.agh.cs.distributedsystems.weatherapi.model.Weather
 import edu.agh.cs.distributedsystems.weatherapi.util.LocalDateDeserializer
 import edu.agh.cs.distributedsystems.weatherapi.util.LocalDateSerializer
+import edu.agh.cs.distributedsystems.weatherapi.util.toLocalDate
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import java.time.LocalDate
 
 private object ResponseParser {
-    fun parse(response: MeteosourceResponse): Weather = Weather(
-        response.daily.data
-            .associateBy { it.day }
+    fun parse(response: WeatherbitResponse): Weather = Weather(
+        response.data
+            .associateBy { it.datetime }
             .mapValues { (_, dailyWeather) ->
-                val data = dailyWeather.all_day
                 TemperatureData(
-                    averageTemperature = Temperature(data.temperature),
-                    minTemperature = Temperature(data.temperature_min),
-                    maxTemperature = Temperature(data.temperature_max),
+                    averageTemperature = Temperature(dailyWeather.temp),
+                    minTemperature = Temperature(dailyWeather.temp),
+                    maxTemperature = Temperature(dailyWeather.temp),
                 )
             }
     )
 }
 
-class MeteosourceApiIntegration : WeatherApiIntegration(ApiUrls.meteosource) {
-    private val key = ApiKeys.meteosource
+class WeatherbitApiIntegration : WeatherApiIntegration(ApiUrls.weatherbit) {
+    private val key = ApiKeys.weatherbit
 
     private fun requestDailyWeather(coordinates: Coordinates): Response {
         val url = baseUrl.newBuilder()
             .addQueryParameter("lat", coordinates.lat.toString())
             .addQueryParameter("lon", coordinates.lon.toString())
-            .addQueryParameter("language", "en")
-            .addQueryParameter("units", "metric")
-            .addQueryParameter("sections", "daily")
             .addQueryParameter("key", key)
             .build()
 
@@ -56,7 +53,7 @@ class MeteosourceApiIntegration : WeatherApiIntegration(ApiUrls.meteosource) {
         if (!response.isSuccessful)
             return null
 
-        val metasourceResponse = gson().fromJson(response.body?.string(), MeteosourceResponse::class.java)
-        return ResponseParser.parse(metasourceResponse)
+        val weatherbitResponse = gson().fromJson(response.body?.string(), WeatherbitResponse::class.java)
+        return ResponseParser.parse(weatherbitResponse)
     }
 }

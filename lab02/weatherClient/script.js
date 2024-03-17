@@ -108,9 +108,9 @@ function showWeatherForecast(weatherData) {
   const newRecord = (date, temperatureData, numberOfIntegrations) =>
     `<div class="record">
         <a class="date">${date}</a>
-        <a class="temp">Avg: ${temperatureData.averageTemperature.celsius}°C</a>
-        <a class="temp">Min: ${temperatureData.minTemperature.celsius}°C</a>
-        <a class="temp">Max: ${temperatureData.maxTemperature.celsius}°C</a>
+        <a class="temp">Avg: ${temperatureData.averageTemperature.celsius.toFixed(1)}°C</a>
+        <a class="temp">Min: ${temperatureData.minTemperature.celsius.toFixed(1)}°C</a>
+        <a class="temp">Max: ${temperatureData.maxTemperature.celsius.toFixed(1)}°C</a>
         <a class="integrations">Data from<br>${numberOfIntegrations} integration${
       numberOfIntegrations > 1 ? "s" : ""
     }</a>

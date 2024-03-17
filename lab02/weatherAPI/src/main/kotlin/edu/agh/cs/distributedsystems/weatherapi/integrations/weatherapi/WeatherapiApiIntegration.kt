@@ -1,10 +1,11 @@
-package edu.agh.cs.distributedsystems.weatherapi.integrations.meteosource
+package edu.agh.cs.distributedsystems.weatherapi.integrations.weatherapi
 
 import com.google.gson.GsonBuilder
 import edu.agh.cs.distributedsystems.weatherapi.integrations.WeatherApiIntegration
 import edu.agh.cs.distributedsystems.weatherapi.integrations.ApiKeys
 import edu.agh.cs.distributedsystems.weatherapi.integrations.ApiUrls
 import edu.agh.cs.distributedsystems.weatherapi.integrations.meteosource.model.MeteosourceResponse
+import edu.agh.cs.distributedsystems.weatherapi.integrations.weatherapi.model.WeatherapiResponse
 import edu.agh.cs.distributedsystems.weatherapi.model.Coordinates
 import edu.agh.cs.distributedsystems.weatherapi.model.Temperature
 import edu.agh.cs.distributedsystems.weatherapi.model.TemperatureData
@@ -17,30 +18,30 @@ import okhttp3.Response
 import java.time.LocalDate
 
 private object ResponseParser {
-    fun parse(response: MeteosourceResponse): Weather = Weather(
-        response.daily.data
-            .associateBy { it.day }
+    fun parse(response: WeatherapiResponse): Weather = Weather(
+        response.forecast.forecastday
+            .associateBy { it.date }
             .mapValues { (_, dailyWeather) ->
-                val data = dailyWeather.all_day
+                val data = dailyWeather.day
                 TemperatureData(
-                    averageTemperature = Temperature(data.temperature),
-                    minTemperature = Temperature(data.temperature_min),
-                    maxTemperature = Temperature(data.temperature_max),
+                    averageTemperature = Temperature(data.avgtemp_c),
+                    minTemperature = Temperature(data.mintemp_c),
+                    maxTemperature = Temperature(data.maxtemp_c),
                 )
             }
     )
 }
 
-class MeteosourceApiIntegration : WeatherApiIntegration(ApiUrls.meteosource) {
-    private val key = ApiKeys.meteosource
+class WeatherapiApiIntegration : WeatherApiIntegration(ApiUrls.weatherapi) {
+    private val key = ApiKeys.weatherapi
 
     private fun requestDailyWeather(coordinates: Coordinates): Response {
         val url = baseUrl.newBuilder()
-            .addQueryParameter("lat", coordinates.lat.toString())
-            .addQueryParameter("lon", coordinates.lon.toString())
-            .addQueryParameter("language", "en")
-            .addQueryParameter("units", "metric")
-            .addQueryParameter("sections", "daily")
+            .addQueryParameter("q", "${coordinates.lat},${coordinates.lon}")
+            .addQueryParameter("days", "14")
+            .addQueryParameter("hour", "12")
+            .addQueryParameter("alerts", "no")
+            .addQueryParameter("aqi", "no")
             .addQueryParameter("key", key)
             .build()
 
@@ -56,7 +57,7 @@ class MeteosourceApiIntegration : WeatherApiIntegration(ApiUrls.meteosource) {
         if (!response.isSuccessful)
             return null
 
-        val metasourceResponse = gson().fromJson(response.body?.string(), MeteosourceResponse::class.java)
-        return ResponseParser.parse(metasourceResponse)
+        val weatherapiResponse = gson().fromJson(response.body?.string(), WeatherapiResponse::class.java)
+        return ResponseParser.parse(weatherapiResponse)
     }
 }
