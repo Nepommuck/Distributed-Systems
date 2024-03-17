@@ -1,9 +1,9 @@
 package edu.agh.cs.distributedsystems.weatherapi.integrations.meteosource.model
 
-import java.util.*
+import java.time.LocalDate
 
 class DailyWeather(
-    val day: Date,
+    val day: LocalDate,
     val all_day: DailyDetails,
 )
 

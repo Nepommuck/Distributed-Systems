@@ -21,6 +21,32 @@ class WeatherAPI(val persistenceManager: PersistenceManager) {
             null -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(SummaryWeatherApiResponse.Error("Location with name '$locationName' not found"))
 
+            // TODO
             else -> ResponseEntity.ok(WeatherCentral.getWeather(coordinates))
+//            else -> ResponseEntity.ok(
+//                SummaryWeather(
+//                    mapOf(
+//                        Pair(
+//                            LocalDate.of(2024, 5, 11),
+//                            DailyWeather(
+//                                dailyTotal = TemperatureData(Temperature(15.5), Temperature(2.5), Temperature(20.9)),
+//                                allData = listOf(
+//                                    TemperatureData(Temperature(16.0), Temperature(5.5), Temperature(20.9)),
+//                                    TemperatureData(Temperature(15.0), Temperature(2.5), Temperature(17.5)),
+//                                )
+//                            )
+//                        ),
+//                        Pair(
+//                            LocalDate.of(2024, 5, 12),
+//                            DailyWeather(
+//                                dailyTotal = TemperatureData(Temperature(12.5), Temperature(5.5), Temperature(23.9)),
+//                                allData = listOf(
+//                                    TemperatureData(Temperature(16.0), Temperature(5.5), Temperature(20.9)),
+//                                )
+//                            )
+//                        ),
+//                    )
+//                )
+//            )
         }
 }

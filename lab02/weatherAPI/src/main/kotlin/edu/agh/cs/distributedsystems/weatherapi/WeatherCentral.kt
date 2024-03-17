@@ -1,14 +1,14 @@
 package edu.agh.cs.distributedsystems.weatherapi
 
 import edu.agh.cs.distributedsystems.weatherapi.integrations.WeatherApiIntegration
-import edu.agh.cs.distributedsystems.weatherapi.integrations.meteosource.MeteosourceApiIntegration
+import edu.agh.cs.distributedsystems.weatherapi.integrations.weatherbit.WeatherbitApiIntegration
 import edu.agh.cs.distributedsystems.weatherapi.model.*
 import kotlin.math.max
 import kotlin.math.min
 
 object WeatherCentral {
     private val integrations: List<WeatherApiIntegration> = listOf(
-        MeteosourceApiIntegration(),
+        WeatherbitApiIntegration(),
     )
 
     private fun calculateDailyTotal(allData: List<TemperatureData>): TemperatureData {

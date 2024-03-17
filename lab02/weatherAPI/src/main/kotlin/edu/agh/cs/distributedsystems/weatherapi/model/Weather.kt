@@ -1,6 +1,6 @@
 package edu.agh.cs.distributedsystems.weatherapi.model
 
-import java.util.*
+import java.time.LocalDate
 
 
 data class Temperature(val celsius: Double)
@@ -11,4 +11,4 @@ class TemperatureData(
     val maxTemperature: Temperature,
 )
 
-class Weather(val dailyTemperatures: Map<Date, TemperatureData>)
+class Weather(val dailyTemperatures: Map<LocalDate, TemperatureData>)

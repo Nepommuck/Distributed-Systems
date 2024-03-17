@@ -1,6 +1,6 @@
 package edu.agh.cs.distributedsystems.weatherapi.model
 
-import java.util.*
+import java.time.LocalDate
 
 
 sealed interface SummaryWeatherApiResponse {
@@ -8,10 +8,10 @@ sealed interface SummaryWeatherApiResponse {
 }
 
 class SummaryWeather(
-    val dailyForecasts: Map<Date, DailyWeather>,
+    val dailyForecasts: Map<LocalDate, DailyWeather>,
 ) : SummaryWeatherApiResponse
 
 class DailyWeather(
     val dailyTotal: TemperatureData,
-    val allData: List<TemperatureData>
+    val allData: List<TemperatureData>,
 )
