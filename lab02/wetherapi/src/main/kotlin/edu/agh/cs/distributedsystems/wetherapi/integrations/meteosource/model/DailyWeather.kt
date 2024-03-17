@@ -9,7 +9,7 @@ class DailyWeather(
 
 
 class DailyDetails(
-    val temperature: Float,
-    val temperature_min: Float,
-    val temperature_max: Float,
+    val temperature: Double,
+    val temperature_min: Double,
+    val temperature_max: Double,
 )
