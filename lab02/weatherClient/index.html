@@ -1,55 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
     <script src="script.js" defer></script>
-</head>
+  </head>
 
-<body onload="displayLocations()">
+  <body onload="displayLocations()">
     <div>
-        <h2>API Key</h2>
-        <input onchange="updateApiKey()" type="text" name="api-key" id="api-key">
+      <h2>API Key</h2>
+      <input
+        onchange="updateApiKey()"
+        type="text"
+        name="api-key"
+        id="api-key"
+      />
     </div>
     <div id="locations">
-        <h2>Known locations</h2>
-        <div id="location-list">
-            <!-- To be inserted -->
+      <h2>Known locations</h2>
+      <div id="location-list">
+        <!-- To be inserted -->
+      </div>
+      <h2>Add new location</h2>
+      <form id="add-location">
+        <div>
+          <label for="location-name">Location name:</label><br />
+          <input type="text" id="location-name" name="location-name" /><br />
         </div>
-        <h2>Add new location</h2>
-        <form id="add-location">
-            <div>
-                <label for="location-name">Location name:</label><br>
-                <input type="text" id="location-name" name="location-name"><br>
-            </div>
-            <div>
-                <label for="latitude">Latitude:</label><br>
-                <input type="number" id="latitude" name="latitude"><br>
-            </div>
-            <div>
-                <label for="longitude">Longitude:</label><br>
-                <input type="number" id="longitude" name="longitude"><br>
-            </div>
-        </form>
-        <button onclick="addNewLocation()">Add</button>
+        <div>
+          <label for="latitude">Latitude:</label><br />
+          <input type="number" id="latitude" name="latitude" /><br />
+        </div>
+        <div>
+          <label for="longitude">Longitude:</label><br />
+          <input type="number" id="longitude" name="longitude" /><br />
+        </div>
+      </form>
+      <button onclick="addNewLocation()">Add</button>
     </div>
 
     <div class="form">
-        <h2>Check weather</h2>
-        <form id="get-weather-form">
-            <label for="location">Location name:</label><br>
-            <input type="text" id="location" name="location" required><br>
-            
-            <!-- <input type="submit" value="Submit"> -->
-        </form>
-        <button onclick="sumbitWeatherForm()">Sumbit</button>
+      <h2>Check weather</h2>
+      <form id="get-weather-form">
+        <label for="location">Location name:</label><br />
+        <input type="text" id="location" name="location" required /><br />
+
+        <!-- <input type="submit" value="Submit"> -->
+      </form>
+      <button onclick="sumbitWeatherForm()">Sumbit</button>
     </div>
 
     <div id="weather-results">
-        <!-- To be inserted -->
+      <!-- To be inserted -->
     </div>
-</body>
+  </body>
 </html>

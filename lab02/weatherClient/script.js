@@ -1,8 +1,19 @@
-var apiKey = ""
+var apiKey = "";
 const baseUrl = "http://localhost:8080";
 
 function getWeather(locationName) {
-  return fetch(`${baseUrl}/weather/${locationName}?key=${apiKey}`).then((response) => {
+  return fetch(`${baseUrl}/weather/${locationName}?key=${apiKey}`).then(
+    (response) => {
+      if (!response.ok) {
+        throw new Error(`Request failed with status: ${response.status}`);
+      }
+      return response.json();
+    }
+  );
+}
+
+function getAllLocations() {
+  return fetch(`${baseUrl}/locations?key=${apiKey}`).then((response) => {
     if (!response.ok) {
       throw new Error(`Request failed with status: ${response.status}`);
     }
@@ -10,41 +21,35 @@ function getWeather(locationName) {
   });
 }
 
-function getAllLocations() {
-  return fetch(`${baseUrl}/locations?key=${apiKey}`).then((response) => {
-    if (!response.ok) {
-        throw new Error(`Request failed with status: ${response.status}`);
-    }
-    return response.json();
-  });
-}
-
 function addLocation(name, lat, lon) {
-  return fetch(`${baseUrl}/locations?name=${name}&lat=${lat}&lon=${lon}&key=${apiKey}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  }).then((response) => {
+  return fetch(
+    `${baseUrl}/locations?name=${name}&lat=${lat}&lon=${lon}&key=${apiKey}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  ).then((response) => {
     if (!response.ok) {
-        throw new Error(`Request failed with status: ${response.status}`);
+      throw new Error(`Request failed with status: ${response.status}`);
     }
     return response.json();
   });
 }
 
 function deleteLocation(id) {
-    return fetch(`${baseUrl}/locations/${id}?key=${apiKey}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).then((response) => {
-      if (!response.ok) {
-          throw new Error(`Request failed with status: ${response.status}`);
-      }
-      return response.json();
-    });
+  return fetch(`${baseUrl}/locations/${id}?key=${apiKey}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then((response) => {
+    if (!response.ok) {
+      throw new Error(`Request failed with status: ${response.status}`);
+    }
+    return response.json();
+  });
 }
 
 function displayLocations() {
@@ -63,7 +68,11 @@ function displayLocations() {
         .slice()
         .sort((a, b) => a.name.localeCompare(b.name))
         .forEach((location) => {
-          resultHtlm += newRecord(location.id, location.name, location.coordinates);
+          resultHtlm += newRecord(
+            location.id,
+            location.name,
+            location.coordinates
+          );
         });
       document.getElementById("location-list").innerHTML = resultHtlm;
     })
@@ -78,17 +87,19 @@ function addNewLocation() {
   const latitude = form.elements["latitude"].value;
   const longitude = form.elements["longitude"].value;
 
-  addLocation(locationName, latitude, longitude).then((_) => {
+  addLocation(locationName, latitude, longitude)
+    .then((_) => {
       displayLocations();
-  }).catch(error =>{
-    displayError(error)
-  });
+    })
+    .catch((error) => {
+      displayError(error);
+    });
 }
 
 function removeLocation(id) {
-    deleteLocation(id).then(_ => {
-        displayLocations()
-    })
+  deleteLocation(id).then((_) => {
+    displayLocations();
+  });
 }
 
 function sumbitWeatherForm() {
@@ -109,9 +120,15 @@ function showWeatherForecast(weatherData) {
   const newRecord = (date, temperatureData, numberOfIntegrations) =>
     `<div class="record">
         <a class="date">${date}</a>
-        <a class="temp">Avg: ${temperatureData.averageTemperature.celsius.toFixed(1)}°C</a>
-        <a class="temp">Min: ${temperatureData.minTemperature.celsius.toFixed(1)}°C</a>
-        <a class="temp">Max: ${temperatureData.maxTemperature.celsius.toFixed(1)}°C</a>
+        <a class="temp">Avg: ${temperatureData.averageTemperature.celsius.toFixed(
+          1
+        )}°C</a>
+        <a class="temp">Min: ${temperatureData.minTemperature.celsius.toFixed(
+          1
+        )}°C</a>
+        <a class="temp">Max: ${temperatureData.maxTemperature.celsius.toFixed(
+          1
+        )}°C</a>
         <a class="integrations">Data from<br>${numberOfIntegrations} integration${
       numberOfIntegrations > 1 ? "s" : ""
     }</a>
@@ -131,8 +148,8 @@ function showWeatherForecast(weatherData) {
 }
 
 function updateApiKey() {
-    apiKey = document.getElementById("api-key").value
-    displayLocations()
+  apiKey = document.getElementById("api-key").value;
+  displayLocations();
 }
 
 function displayError(message) {
