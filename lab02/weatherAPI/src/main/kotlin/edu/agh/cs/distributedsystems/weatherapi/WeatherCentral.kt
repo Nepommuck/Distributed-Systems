@@ -1,8 +1,6 @@
 package edu.agh.cs.distributedsystems.weatherapi
 
 import edu.agh.cs.distributedsystems.weatherapi.config.ActiveIntegrations
-import edu.agh.cs.distributedsystems.weatherapi.integrations.WeatherApiIntegration
-import edu.agh.cs.distributedsystems.weatherapi.integrations.weatherbit.WeatherbitApiIntegration
 import edu.agh.cs.distributedsystems.weatherapi.model.*
 import kotlin.math.max
 import kotlin.math.min

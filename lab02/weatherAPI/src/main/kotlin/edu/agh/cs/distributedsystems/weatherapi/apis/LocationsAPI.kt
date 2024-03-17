@@ -1,4 +1,4 @@
-package edu.agh.cs.distributedsystems.weatherapi.apis;
+package edu.agh.cs.distributedsystems.weatherapi.apis
 
 
 import edu.agh.cs.distributedsystems.weatherapi.model.Coordinates

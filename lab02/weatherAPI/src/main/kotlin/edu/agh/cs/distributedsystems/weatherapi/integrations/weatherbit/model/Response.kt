@@ -1,7 +1,6 @@
 package edu.agh.cs.distributedsystems.weatherapi.integrations.weatherbit.model
 
 import java.time.LocalDate
-import java.util.Date
 
 class WeatherbitResponse(
     val data: List<DailyData>
