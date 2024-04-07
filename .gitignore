@@ -8,3 +8,5 @@ tasks/
 target/
 
 *.jar
+
+__pycache__/
