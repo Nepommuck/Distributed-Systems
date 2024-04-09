@@ -48,6 +48,12 @@ class AvailableCommands:
         usage="modify [document name] [new content]",
         description="Modify the content of an existing document",
     )
+    delete = Command(
+        name="delete",
+        argument_count=1,
+        usage="delete [document name]",
+        description="Delete an existing document",
+    )
     status = Command(
         name="status",
         argument_count=0,
@@ -61,7 +67,7 @@ class AvailableCommands:
         description="Shutdown the server",
     )
 
-    all = [help, upload, read, modify, status, exit]
+    all = [help, upload, read, modify, delete, status, exit]
 
 
 class Repl:
@@ -115,6 +121,16 @@ class Repl:
             else:
                 print(f"Document '{document_name}' modified successfully")
 
+        elif command == AvailableCommands.delete:
+            [document_name] = validated_arguments
+
+            error = ray.get(self.__client.delete.remote(document_name))
+
+            if error is not None:
+                self.__print_error(f"Failed to delete document '{document_name}': {error}")
+            else:
+                print(f"Document '{document_name}' deleted successfully")
+
         elif command == AvailableCommands.status:
             name_node_status, data_nodes_statuses = ray.get(self.__client.get_status.remote())
             
@@ -126,7 +142,7 @@ class Repl:
             sys.exit()
 
         elif command is not None:
-            self.__print_error(f"Internal error. Unable to handle valid command `{command}`")
+            self.__print_error(f"Internal error. Unable to handle valid command `{command.name}`")
     
 
     def __print_error(cls, error_message: str):

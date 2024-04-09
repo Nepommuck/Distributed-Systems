@@ -29,9 +29,17 @@ class NameNode:
         data_nodes = self.__get_nodes_at_random()
         self.__existing_documents[document.name] = data_nodes
 
-        document = ray.put(document)
         for data_node in data_nodes:
             data_node.save_or_update_document.remote(document)
+    
+    def delete_document(self, document_name: Document) -> None:
+        assert document_name in self.__existing_documents.keys(), f"Document named '{document_name}' doesn't exist"
+
+        data_nodes = self.get_document_data_nodes(document_name)
+        self.__existing_documents.pop(document_name)
+
+        for data_node in data_nodes:
+            data_node.delete_document.remote(document_name)
     
     def get_document_data_nodes(self, document_name: str) -> list[DataNode]:
         assert document_name in self.__existing_documents.keys(), f"Document named '{document_name}' doesn't exist"
