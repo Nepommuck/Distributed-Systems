@@ -42,6 +42,12 @@ class AvailableCommands:
         usage="read [document name]",
         description="Read the content of an existing document",
     )
+    modify = Command(
+        name="modify",
+        argument_count=2,
+        usage="modify [document name] [new content]",
+        description="Modify the content of an existing document",
+    )
     status = Command(
         name="status",
         argument_count=0,
@@ -55,7 +61,7 @@ class AvailableCommands:
         description="Shutdown the server",
     )
 
-    all = [help, upload, read, status, exit]
+    all = [help, upload, read, modify, status, exit]
 
 
 class Repl:
@@ -96,7 +102,18 @@ class Repl:
             if error is not None:
                 self.__print_error(f"Failed to read document '{document_name}': {error}")
             else:
-                print(f"Document '{document_name}' successfully read from DataNode#{node_id} in {execution_time:.2f}s\nContent:\n" + Fore.BLUE + document.content + Style.RESET_ALL)
+                print(f"Document '{document_name}' read successfully from DataNode#{node_id} in {execution_time:.2f}s\nContent:\n" + Fore.BLUE + document.content + Style.RESET_ALL)
+
+        elif command == AvailableCommands.modify:
+            [document_name, new_content] = validated_arguments
+
+            modified_document = Document(document_name, new_content)
+            error = ray.get(self.__client.modify.remote(modified_document))
+
+            if error is not None:
+                self.__print_error(f"Failed to modify document '{document_name}': {error}")
+            else:
+                print(f"Document '{document_name}' modified successfully")
 
         elif command == AvailableCommands.status:
             name_node_status, data_nodes_statuses = ray.get(self.__client.get_status.remote())
@@ -121,9 +138,10 @@ class Repl:
         def unexpected_arguments_msg(command: Command, args: list[str]) -> str:
             return f"Command '{command.name}' received unexpected arguments: {args}\nUsage: {command.usage}"
         
-        def invalid_arguments_msg(command: Command, detailed_error: str = None) -> str:
+        def invalid_arguments_msg(command: Command, arg_count: int | None = None) -> str:
             msg = f"Command '{command.name}' received invalid arguments"
-            msg += f": {detailed_error}" if detailed_error is not None else "."
+            if arg_count is not None:
+                msg += f" ({arg_count} instead of expected {command.argument_count})"
             msg += f"\nUsage: {command.usage}"
             return msg
         
@@ -145,7 +163,7 @@ class Repl:
 
         command = matching_commands[0]
         if len(arguments) != command.argument_count:
-            error = unexpected_arguments_msg(command, arguments) if command.argument_count == 0 else invalid_arguments_msg(command)
+            error = unexpected_arguments_msg(command, arguments) if command.argument_count == 0 else invalid_arguments_msg(command, arg_count=len(arguments))
             return command, [], error
         
         return command, arguments, None

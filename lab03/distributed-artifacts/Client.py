@@ -37,6 +37,19 @@ class Client:
         
         self.__name_node.save_document.remote(document)
     
+    def modify(self, document: Document) -> str:
+        '''Returns error message on failure'''
+        does_document_exist = ray.get(self.__name_node.does_document_exist.remote(document.name))
+        if not does_document_exist:
+            error = f"Document named '{document.name}' doesn't exist"
+            return error
+        
+        data_nodes = ray.get(self.__name_node.get_document_data_nodes.remote(document.name))
+
+        for data_node in data_nodes:
+            data_node.save_or_update_document.remote(document)
+        return None        
+    
     def get_status(self) -> tuple[tuple[int, list[str]], list[tuple[int, list[str]]]]:
         '''Returns: `(name_node_status, data_nodes_statuses)`.
         `name_node_status -> (data_nodes_number: int, saved_document_names: list[str])`

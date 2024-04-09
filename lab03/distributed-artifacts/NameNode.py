@@ -29,9 +29,9 @@ class NameNode:
         data_nodes = self.__get_nodes_at_random()
         self.__existing_documents[document.name] = data_nodes
 
-        document_id = ray.put(document)
+        document = ray.put(document)
         for data_node in data_nodes:
-            data_node.save_or_update_document.remote(document_id)
+            data_node.save_or_update_document.remote(document)
     
     def get_document_data_nodes(self, document_name: str) -> list[DataNode]:
         assert document_name in self.__existing_documents.keys(), f"Document named '{document_name}' doesn't exist"
