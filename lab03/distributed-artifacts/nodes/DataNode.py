@@ -1,7 +1,7 @@
 import ray
 
-from Document import Document
-from MockDB import MockDB
+from model.Document import Document
+from nodes.util.MockDB import MockDB
 
 
 @ray.remote

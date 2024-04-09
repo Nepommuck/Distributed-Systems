@@ -1,7 +1,7 @@
 import random
 import time
 
-from Document import Document
+from model.Document import Document
 
 
 class MockDB:

@@ -1,12 +1,12 @@
 import ray
 
-from DataNode import DataNode
-from Document import Document
-from NameNode import NameNode
+from model.Document import Document
+from nodes.DataNode import DataNode
+from nodes.NameNode import NameNode
 
 
 @ray.remote
-class Client:
+class ClientNode:
     def __init__(self, name_node: NameNode, data_nodes: list[DataNode]) -> None:
         self.__name_node = name_node
         self.__data_nodes = data_nodes

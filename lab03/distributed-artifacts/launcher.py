@@ -1,10 +1,10 @@
 import ray
 import sys
 
-from Client import Client
-from DataNode import DataNode
-from Repl import Repl
-from NameNode import NameNode
+from nodes.ClientNode import ClientNode
+from nodes.DataNode import DataNode
+from nodes.NameNode import NameNode
+from repl.Repl import Repl
 
 
 DEFAULT_DATA_NODES_NUMBER = 10
@@ -21,7 +21,7 @@ def main():
     ray.init()
     data_nodes = [DataNode.remote(id) for id in range(node_number)]
     name_node = NameNode.remote(data_nodes)
-    client = Client.remote(name_node, data_nodes)
+    client = ClientNode.remote(name_node, data_nodes)
 
     repl = Repl(client)
     print(f"\nDistributed-Artifact system started with {node_number} data nodes")

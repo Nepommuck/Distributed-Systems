@@ -4,8 +4,8 @@ import ray
 from colorama import Fore, Style
 from time import time
 
-from Client import Client
-from Document import Document
+from nodes.ClientNode import ClientNode
+from model.Document import Document
 
 
 class Command:
@@ -76,7 +76,7 @@ class AvailableCommands:
 
 
 class Repl:
-    def __init__(self, client: Client) -> None:
+    def __init__(self, client: ClientNode) -> None:
         self.__client = client
 
     def start(self) -> None:

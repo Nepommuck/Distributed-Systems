@@ -1,8 +1,8 @@
 import ray
 import random
 
-from DataNode import DataNode
-from Document import Document
+from model.Document import Document
+from nodes.DataNode import DataNode
 
 
 @ray.remote
