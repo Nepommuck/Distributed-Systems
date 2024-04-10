@@ -1,6 +1,6 @@
 import ray
 
-from model.Document import Document
+from model.Artifact import Artifact
 from nodes.util.MockDB import MockDB
 
 
@@ -13,18 +13,18 @@ class DataNode:
     def get_id(self) -> int:
         return self.__id
 
-    def get_document(self, document_name: str) -> Document:
-        return self.__db.get(document_name)
+    def get_artifact(self, artifact_name: str) -> Artifact:
+        return self.__db.get(artifact_name)
 
-    def save_or_update_document(self, document: Document) -> None:
-        return self.__db.save(document)
+    def save_or_update_artifact(self, artifact: Artifact) -> None:
+        return self.__db.save(artifact)
 
-    def delete_document(self, document_name: str) -> None:
-        return self.__db.delete(document_name)
+    def delete_artifact(self, artifact_name: str) -> None:
+        return self.__db.delete(artifact_name)
 
     def get_status(self) -> tuple[int, list[str]]:
-        """Returns: `(node_id: int, saved_document_names: list[str])`"""
+        """Returns: `(node_id: int, saved_artifact_names: list[str])`"""
         node_id = self.__id
-        saved_document_names = self.__db.get_all_names()
+        saved_artifact_names = self.__db.get_all_names()
 
-        return node_id, saved_document_names
+        return node_id, saved_artifact_names

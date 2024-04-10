@@ -5,7 +5,7 @@ from colorama import Fore, Style
 from time import time
 
 from nodes.ClientNode import ClientNode
-from model.Document import Document
+from model.Artifact import Artifact
 
 
 class Command:
@@ -38,26 +38,26 @@ class AvailableCommands:
     upload = Command(
         name="upload",
         argument_count=2,
-        usage="upload [document name] [content]",
-        description="Upload new document",
+        usage="upload [artifact name] [content]",
+        description="Upload new artifact",
     )
     read = Command(
         name="read",
         argument_count=1,
-        usage="read [document name]",
-        description="Read the content of an existing document",
+        usage="read [artifact name]",
+        description="Read the content of an existing artifact",
     )
     modify = Command(
         name="modify",
         argument_count=2,
-        usage="modify [document name] [new content]",
-        description="Modify the content of an existing document",
+        usage="modify [artifact name] [new content]",
+        description="Modify the content of an existing artifact",
     )
     delete = Command(
         name="delete",
         argument_count=1,
-        usage="delete [document name]",
-        description="Delete an existing document",
+        usage="delete [artifact name]",
+        description="Delete an existing artifact",
     )
     status = Command(
         name="status",
@@ -98,59 +98,59 @@ class Repl:
             print(self.__get_help_message(), end="\n\n")
 
         elif command == AvailableCommands.upload:
-            document_name, document_content = validated_arguments
-            new_document = Document(document_name, document_content)
-            error = ray.get(self.__client.save.remote(new_document))
+            artifact_name, artifact_content = validated_arguments
+            new_artifact = Artifact(artifact_name, artifact_content)
+            error = ray.get(self.__client.save.remote(new_artifact))
 
             if error is not None:
                 self.__print_error(
-                    f"Failed to upload document '{document_name}': {error}"
+                    f"Failed to upload artifact '{artifact_name}': {error}"
                 )
             else:
-                print(f"Successfully uploaded document '{document_name}'")
+                print(f"Successfully uploaded artifact '{artifact_name}'")
 
         elif command == AvailableCommands.read:
-            [document_name] = validated_arguments
+            [artifact_name] = validated_arguments
             start_time = time()
-            document, node_id, error = ray.get(self.__client.read.remote(document_name))
+            artifact, node_id, error = ray.get(self.__client.read.remote(artifact_name))
             execution_time = time() - start_time
 
             if error is not None:
                 self.__print_error(
-                    f"Failed to read document '{document_name}': {error}"
+                    f"Failed to read artifact '{artifact_name}': {error}"
                 )
             else:
                 print(
-                    f"Document '{document_name}' read successfully from DataNode#{node_id} in {execution_time:.2f}s\nContent:\n"
+                    f"Artifact '{artifact_name}' read successfully from DataNode#{node_id} in {execution_time:.2f}s\nContent:\n"
                     + Fore.BLUE
-                    + document.content
+                    + artifact.content
                     + Style.RESET_ALL
                 )
 
         elif command == AvailableCommands.modify:
-            [document_name, new_content] = validated_arguments
+            [artifact_name, new_content] = validated_arguments
 
-            modified_document = Document(document_name, new_content)
-            error = ray.get(self.__client.modify.remote(modified_document))
+            modified_artifact = Artifact(artifact_name, new_content)
+            error = ray.get(self.__client.modify.remote(modified_artifact))
 
             if error is not None:
                 self.__print_error(
-                    f"Failed to modify document '{document_name}': {error}"
+                    f"Failed to modify artifact '{artifact_name}': {error}"
                 )
             else:
-                print(f"Document '{document_name}' modified successfully")
+                print(f"Artifact '{artifact_name}' modified successfully")
 
         elif command == AvailableCommands.delete:
-            [document_name] = validated_arguments
+            [artifact_name] = validated_arguments
 
-            error = ray.get(self.__client.delete.remote(document_name))
+            error = ray.get(self.__client.delete.remote(artifact_name))
 
             if error is not None:
                 self.__print_error(
-                    f"Failed to delete document '{document_name}': {error}"
+                    f"Failed to delete artifact '{artifact_name}': {error}"
                 )
             else:
-                print(f"Document '{document_name}' deleted successfully")
+                print(f"Artifact '{artifact_name}' deleted successfully")
 
         elif command == AvailableCommands.status:
             name_node_status, data_nodes_statuses = ray.get(
@@ -236,21 +236,21 @@ class Repl:
         data_nodes_statuses: list[tuple[int, list[str]]],
     ) -> str:
         def parse_name_node_status(status: tuple[int, list[str]]):
-            data_nodes_number, saved_document_names = status
+            data_nodes_number, saved_artifact_names = status
 
             connection_msg = f"Connected to {data_nodes_number} data nodes"
-            storage_msg = f"Handles {len(saved_document_names)} documents:\n{saved_document_names}"
+            storage_msg = f"Handles {len(saved_artifact_names)} artifacts:\n{saved_artifact_names}"
 
             return f"{connection_msg}\n{storage_msg}"
 
         def parse_data_node_status(status: tuple[int, list[str]]):
-            node_id, saved_document_names = status
+            node_id, saved_artifact_names = status
 
             return (
                 Fore.BLUE
                 + f"DataNode#{node_id}"
                 + Style.RESET_ALL
-                + f" stores {len(saved_document_names)} documents:\n{sorted(saved_document_names)}"
+                + f" stores {len(saved_artifact_names)} artifacts:\n{sorted(saved_artifact_names)}"
             )
 
         name_node_msg = (
