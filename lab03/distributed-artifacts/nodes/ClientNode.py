@@ -29,13 +29,15 @@ class ClientNode:
 
         all_ray_ids = [node.get_document.remote(document_name) for node in data_nodes]
         while len(all_ray_ids) > 0:
-            [ready_ray_id], _ = ray.wait(all_ray_ids, num_returns=1)
+            [ready_ray_id], reamining_ray_ids = ray.wait(all_ray_ids, num_returns=1)
             ready_index = all_ray_ids.index(ready_ray_id)
 
             ready_node_id = ray.get(data_nodes[ready_index].get_id.remote())
             document = ray.get(ready_ray_id)
 
             if document is not None:
+                for ray_id in reamining_ray_ids:
+                    ray.cancel(ray_id)
                 return document, ready_node_id, None
             else:
                 print(
@@ -44,8 +46,9 @@ class ClientNode:
                 all_ray_ids.pop(ready_index)
 
         all_node_ids = sorted(ray.get([node.get_id.remote() for node in data_nodes]))
-        error = f"All DataNodes failed to return content of document '{document_name}': {[f'DataNode#{id}' for id in all_node_ids]}"
-        return _, _, error
+        error = f"All DataNodes failed to return content of document '{document_name}': " + f"{[f'DataNode#{id}' for id in all_node_ids]}"
+        
+        return None, None, error
 
     def save(self, document: Document) -> str | None:
         """Returns error message on failure"""
