@@ -38,25 +38,25 @@ class AvailableCommands:
     upload = Command(
         name="upload",
         argument_count=2,
-        usage="upload [artifact name] [content]",
+        usage="upload ARTIFACT_NAME CONTENT",
         description="Upload new artifact",
     )
     read = Command(
         name="read",
         argument_count=1,
-        usage="read [artifact name]",
+        usage="read ARTIFACT_NAME",
         description="Read the content of an existing artifact",
     )
     modify = Command(
         name="modify",
         argument_count=2,
-        usage="modify [artifact name] [new content]",
+        usage="modify ARTIFACT_NAME NEW_CONTENT",
         description="Modify the content of an existing artifact",
     )
     delete = Command(
         name="delete",
         argument_count=1,
-        usage="delete [artifact name]",
+        usage="delete ARTIFACT_NAME",
         description="Delete an existing artifact",
     )
     status = Command(
