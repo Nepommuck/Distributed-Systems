@@ -112,7 +112,7 @@ class Repl:
         elif command == AvailableCommands.read:
             [artifact_name] = validated_arguments
             start_time = time()
-            artifact, node_id, error = ray.get(self.__client.read.remote(artifact_name))
+            artifact, nodes_ids, error, warning = ray.get(self.__client.read.remote(artifact_name))
             execution_time = time() - start_time
 
             if error is not None:
@@ -120,8 +120,14 @@ class Repl:
                     f"Failed to read artifact '{artifact_name}': {error}"
                 )
             else:
+                if warning is not None:
+                    self.__print_warning(warning)
+
+                parsed_data_nodes = [f"DataNode#{node_id}" for node_id in nodes_ids]
                 print(
-                    f"Artifact '{artifact_name}' read successfully from DataNode#{node_id} in {execution_time:.2f}s\nContent:\n"
+                    f"Successfully read artifact '{artifact_name}' segments 0-{len(nodes_ids) - 1} read successfully "
+                    + f"from {parsed_data_nodes} in {execution_time:.2f}s\n" 
+                    + "Content:\n"
                     + Fore.BLUE
                     + artifact.content
                     + Style.RESET_ALL
@@ -174,6 +180,9 @@ class Repl:
 
     def __print_error(cls, error_message: str):
         sys.stderr.write(Fore.RED + f"ERROR: {error_message}\n" + Style.RESET_ALL)
+
+    def __print_warning(cls, error_message: str):
+        sys.stderr.write(Fore.YELLOW + f"Warning: {error_message}\n" + Style.RESET_ALL)
 
     def __parse_user_input(cls, raw_user_input: str) -> tuple[Command, list[str], str]:
         """Returns: `(command: Command, validated_arguments: list[str], error: str)`"""
@@ -233,7 +242,7 @@ class Repl:
     def __parse_nodes_status(
         cls,
         name_node_status: tuple[int, list[str]],
-        data_nodes_statuses: list[tuple[int, list[str]]],
+        data_nodes_statuses: list[tuple[int, list[tuple[str, int]]]],
     ) -> str:
         def parse_name_node_status(status: tuple[int, list[str]]):
             data_nodes_number, saved_artifact_names = status
@@ -243,14 +252,16 @@ class Repl:
 
             return f"{connection_msg}\n{storage_msg}"
 
-        def parse_data_node_status(status: tuple[int, list[str]]):
-            node_id, saved_artifact_names = status
+        def parse_data_node_status(status: tuple[int, list[tuple[str, int]]]):
+            node_id, saved_segments_names_and_indexes = status
+
+            parsed_saved_segments = sorted([f"{name}#{index}" for (name, index) in saved_segments_names_and_indexes])
 
             return (
                 Fore.BLUE
                 + f"DataNode#{node_id}"
                 + Style.RESET_ALL
-                + f" stores {len(saved_artifact_names)} artifacts:\n{sorted(saved_artifact_names)}"
+                + f" stores {len(saved_segments_names_and_indexes)} segments:\n{parsed_saved_segments}"
             )
 
         name_node_msg = (

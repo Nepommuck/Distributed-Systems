@@ -20,7 +20,7 @@ def main():
     print(f"Starting Distributed-Artifact system with {node_number} data nodes...")
     ray.init()
     data_nodes = [DataNode.remote(id) for id in range(node_number)]
-    name_node = NameNode.remote(data_nodes)
+    name_node = NameNode.remote(data_nodes, replica_count = 2, artifact_segment_number = 3)
     client = ClientNode.remote(name_node, data_nodes)
 
     repl = Repl(client)
