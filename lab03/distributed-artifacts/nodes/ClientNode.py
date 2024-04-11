@@ -10,8 +10,12 @@ class ClientNode:
     def __init__(self, name_node: NameNode, data_nodes: list[DataNode]) -> None:
         self.__name_node = name_node
         self.__data_nodes = data_nodes
-    
-    def __schedule_single_segments_read(cls, data_nodes_per_segment: list[list[DataNode]], artifact_name: str) -> tuple[list[list], str]:
+
+    def __schedule_single_segments_read(
+        cls,
+        data_nodes_per_segment: list[list[DataNode]],
+        artifact_name: str,
+    ) -> tuple[list[list], str]:
         """Returns: `(scheduled_ray_ids_per_segment: list[list]), error: str`"""
 
         scheduled_ray_ids_per_segment = []
@@ -23,13 +27,17 @@ class ClientNode:
                     ray.cancel(id)
 
                 return None, error
-        
-            scheduled_ray_ids = [node.get_artifact_segment.remote(artifact_name) for node in data_nodes]
+
+            scheduled_ray_ids = [
+                node.get_artifact_segment.remote(artifact_name) for node in data_nodes
+            ]
             scheduled_ray_ids_per_segment.append(scheduled_ray_ids)
 
         return scheduled_ray_ids_per_segment, None
-    
-    def __get_segment_from_scheduled(cls, ray_ids: list[list], data_nodes: list[DataNode]) -> tuple[ArtifactSegment, int, list[int]]:
+
+    def __get_segment_from_scheduled(
+        cls, ray_ids: list[list], data_nodes: list[DataNode]
+    ) -> tuple[ArtifactSegment, int, list[int]]:
         """Returns: `(artifact_segment: ArtifactSegment, node_id: int, failed_nodes_ids: list[int])`"""
 
         all_ray_ids = ray_ids.copy()
@@ -47,26 +55,12 @@ class ClientNode:
                 for ray_id in reamining_ray_ids:
                     ray.cancel(ray_id)
                 return artifact_segment, ready_node_id, failed_nodes_ids
-            
+
             else:
                 failed_nodes_ids.append(ready_node_id)
                 all_ray_ids.pop(ready_index)
-        
+
         return None, None, failed_nodes_ids
-
-    # def __get_one_response_per_segment(ray_ids: list[list], data_nodes_per_segment: list[list[DataNode]]):
-    #     ray_ids = [sublist.copy() for sublist in ray_ids]
-    #     ready_ids = []    # list[ray_id]
-    #     remainig_ids = [] # list[list[ray_id]]
-
-    #     # for segment_index, segment_ids in enumerate(ray_ids):
-    #     # for segment_index, segment_ids in enumerate(ray_ids):
-    #     for segment_index in range(len(ray_ids)):
-
-    #         all_segment_ray_ids = ray_ids[segment_index]
-    #         # [ready_ray_id], reamining_ray_ids = ray.wait(segment_ids, num_returns=1)
-    #         # returned_segment = ray.get(ready_ray_id)
-    #         # ready_ids.append()
 
     def read(self, artifact_name: str) -> tuple[Artifact, list[int], str, str]:
         """Returns: `(artifact: Artifact, used_nodes_ids: list[int], error: str, warning: str)`"""
@@ -80,25 +74,37 @@ class ClientNode:
         data_nodes_per_segment = ray.get(
             self.__name_node.get_artifact_data_nodes.remote(artifact_name)
         )
-        scheduled_ray_ids_per_segment, error = self.__schedule_single_segments_read(data_nodes_per_segment, artifact_name)
+        scheduled_ray_ids_per_segment, error = self.__schedule_single_segments_read(
+            data_nodes_per_segment, artifact_name
+        )
         if error is not None:
             return None, None, error, None
-        
+
         warning = ""
         read_segments = []
         used_nodes_ids = []
-        for segment_index, (data_nodes, ray_ids) in enumerate(zip(data_nodes_per_segment, scheduled_ray_ids_per_segment)):
-            artifact_segment, node_id, failed_nodes_ids = self.__get_segment_from_scheduled(ray_ids, data_nodes)
+        for segment_index, (data_nodes, ray_ids) in enumerate(
+            zip(data_nodes_per_segment, scheduled_ray_ids_per_segment)
+        ):
+            artifact_segment, node_id, failed_nodes_ids = (
+                self.__get_segment_from_scheduled(ray_ids, data_nodes)
+            )
 
             failed_nodes_str = f"{[f'DataNode#{id}' for id in failed_nodes_ids]}"
             if node_id is None:
-                error = f"All DataNodes failed to return segment {segment_index} of  artifact '{artifact_name}': " + failed_nodes_str
-        
+                error = (
+                    f"All DataNodes failed to return segment {segment_index} of  artifact '{artifact_name}': "
+                    + failed_nodes_str
+                )
+
                 return None, None, error, None
-            
+
             if len(failed_nodes_ids) > 0:
-                warning += f"Some nodes failed to return segment {segment_index} of  artifact '{artifact_name}': " + failed_nodes_str
-            
+                warning += (
+                    f"Some nodes failed to return segment {segment_index} of  artifact '{artifact_name}': "
+                    + failed_nodes_str
+                )
+
             read_segments.append(artifact_segment)
             used_nodes_ids.append(node_id)
 
@@ -129,7 +135,9 @@ class ClientNode:
         data_nodes_per_segment = ray.get(
             self.__name_node.get_artifact_data_nodes.remote(artifact.name)
         )
-        segments = artifact.split_into_parts(segments_number=len(data_nodes_per_segment))
+        segments = artifact.split_into_parts(
+            segments_number=len(data_nodes_per_segment)
+        )
 
         for segment, data_nodes in zip(segments, data_nodes_per_segment):
             for node in data_nodes:
@@ -149,7 +157,9 @@ class ClientNode:
         self.__name_node.delete_artifact.remote(artifact_name)
         return None
 
-    def get_status(self) -> tuple[tuple[int, list[str]], list[tuple[int, list[tuple[str, int]]]]]:
+    def get_status(
+        self,
+    ) -> tuple[tuple[int, list[str]], list[tuple[int, list[tuple[str, int]]]]]:
         """Returns: `(name_node_status, data_nodes_statuses)`.
         `name_node_status -> (data_nodes_number: int, saved_artifact_names: list[str])`
         `data_nodes_statuses -> list[(node_id: int, saved_segments_names_and_indexes: list[tuple[str, int]])]`

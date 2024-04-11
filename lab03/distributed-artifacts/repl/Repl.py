@@ -46,7 +46,9 @@ class Repl:
         elif command == AvailableCommands.read:
             [artifact_name] = validated_arguments
             start_time = time()
-            artifact, nodes_ids, error, warning = ray.get(self.__client.read.remote(artifact_name))
+            artifact, nodes_ids, error, warning = ray.get(
+                self.__client.read.remote(artifact_name)
+            )
             execution_time = time() - start_time
 
             if error is not None:
@@ -60,7 +62,7 @@ class Repl:
                 parsed_data_nodes = [f"DataNode#{node_id}" for node_id in nodes_ids]
                 print(
                     f"Successfully read artifact '{artifact_name}' segments 0-{len(nodes_ids) - 1} read successfully "
-                    + f"from {parsed_data_nodes} in {execution_time:.2f}s\n" 
+                    + f"from {parsed_data_nodes} in {execution_time:.2f}s\n"
                     + "Content:\n"
                     + Fore.BLUE
                     + artifact.content
@@ -189,7 +191,12 @@ class Repl:
         def parse_data_node_status(status: tuple[int, list[tuple[str, int]]]):
             node_id, saved_segments_names_and_indexes = status
 
-            parsed_saved_segments = sorted([f"{name}#{index}" for (name, index) in saved_segments_names_and_indexes])
+            parsed_saved_segments = sorted(
+                [
+                    f"{name}#{index}"
+                    for (name, index) in saved_segments_names_and_indexes
+                ]
+            )
 
             return (
                 Fore.BLUE

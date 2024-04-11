@@ -20,7 +20,9 @@ class MockDB:
     def get_all_names_and_indexes(self) -> list[tuple[str, int]]:
         self.__random_sleep(0.05)
         all_segments = self.__saved_segments.values()
-        names_and_indexes = [(segment.artifact_name, segment.index) for segment in all_segments]
+        names_and_indexes = [
+            (segment.artifact_name, segment.index) for segment in all_segments
+        ]
 
         return names_and_indexes
 

@@ -7,10 +7,16 @@ from nodes.DataNode import DataNode
 
 @ray.remote
 class NameNode:
-    def __init__(self, data_nodes: list[DataNode], replica_count: int, artifact_segment_number: int) -> None:
-        assert replica_count * artifact_segment_number <= len(data_nodes), \
-        f"Tried to initialize NameNode with too few data nodes ({len(data_nodes)}) " + \
-        f"compared to `replica_count * artifact_split_parts` ({replica_count * artifact_segment_number})"
+    def __init__(
+        self,
+        data_nodes: list[DataNode],
+        replica_count: int,
+        artifact_segment_number: int,
+    ) -> None:
+        assert replica_count * artifact_segment_number <= len(data_nodes), (
+            f"Tried to initialize NameNode with too few data nodes ({len(data_nodes)}) "
+            + f"compared to `replica_count * artifact_split_parts` ({replica_count * artifact_segment_number})"
+        )
 
         self.__data_nodes = data_nodes
         self.__replica_count = replica_count
@@ -66,11 +72,16 @@ class NameNode:
         return data_nodes_number, saved_artifact_names
 
     def __get_nodes_at_random(self) -> list[list[DataNode]]:
-        '''Returns: A `list` with `artifact_split_parts` elements. Each is a list of `replica_count` randomly selected `DataNode`s'''
+        """Returns: A `list` with `artifact_split_parts` elements. Each is a list of `replica_count` randomly selected `DataNode`s"""
 
-        selected_data_nodes = random.sample(self.__data_nodes, k=self.__replica_count * self.__artifact_segment_number)
+        selected_data_nodes = random.sample(
+            self.__data_nodes, k=self.__replica_count * self.__artifact_segment_number
+        )
         random.shuffle(selected_data_nodes)
 
-        result = [selected_data_nodes[i : i+self.__replica_count] for i in range(0, len(selected_data_nodes), self.__replica_count)]
+        result = [
+            selected_data_nodes[i : i + self.__replica_count]
+            for i in range(0, len(selected_data_nodes), self.__replica_count)
+        ]
 
         return result

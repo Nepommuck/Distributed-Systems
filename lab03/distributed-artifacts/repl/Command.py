@@ -16,7 +16,7 @@ class Command:
             and self.usage == other.usage
             and self.description == other.description
         )
-    
+
 
 class AvailableCommands:
     help = Command(
