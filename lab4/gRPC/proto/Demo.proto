@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "Demo";
+option java_outer_classname = "DemoProto";
+
+
+enum MyEnum {
+  FIRST_OPTION = 0;
+  SECOND_OPTION = 1;
+  THIRD_OPTION = 2;
+}
+
+message IntArgs {
+  int32 intArg1 = 1;
+  int32 intArg2 = 2;
+}
+
+message StringArgs {
+  string stringArg1 = 1;
+  string stringArg2 = 2;
+}
+
+message EnumArgs {
+  MyEnum enumArg1 = 1;
+  MyEnum enumArg2 = 2;
+}
+
+message Response {}
+
+service DemoService {
+  rpc opInt (IntArgs) returns (Response) {};
+  rpc opString (StringArgs) returns (Response) {};
+  rpc opEnum (EnumArgs) returns (Response) {};
+}

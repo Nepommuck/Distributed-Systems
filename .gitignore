@@ -11,7 +11,6 @@ target/
 
 __pycache__/
 
-lab4/gRPC/
 lab5/
 
 *.exe
