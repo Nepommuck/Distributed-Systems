@@ -1,0 +1,10 @@
+out/
+*.iml
+
+generated/
+
+client/Demo/
+client/slice_ice.py
+
+config.server
+config.client
