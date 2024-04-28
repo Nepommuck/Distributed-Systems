@@ -11,5 +11,3 @@ target/
 *.exe
 
 __pycache__/
-
-lab5/Smart-Home/Smart-Home-Client/
