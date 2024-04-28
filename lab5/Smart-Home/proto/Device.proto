@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "grpc.gen.Device";
+option java_outer_classname = "DeviceProto";
+
+message Empty {}
+
+
+enum DeviceType {
+  LAMP = 0;
+  FRIDGE = 1;
+}
+
+enum PowerState {
+  OFF = 0;
+  ON = 1;
+}
+
+message DeviceId {
+  int32 value = 1;
+}
+
+message DeviceInfo {
+  DeviceId id = 1;
+  DeviceType type = 2;
+  PowerState powerState = 3;
+}
+
+message GetDevicesRequest {}
+
+message GetDevicesResponse {
+  repeated DeviceInfo devices = 1;
+}
+
+service DeviceService {
+  rpc getDevices (Empty) returns (GetDevicesResponse) {};
+  rpc getDevice (DeviceId) returns (DeviceInfo) {};
+
+  rpc turnOn (DeviceId) returns (Empty) {};
+  rpc turnOff (DeviceId) returns (Empty) {};
+}

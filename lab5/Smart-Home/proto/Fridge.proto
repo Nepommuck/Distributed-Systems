@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "grpc.gen.Fridge";
+option java_outer_classname = "FridgeProto";
+
+import "proto/Device.proto";
+
+
+message Temperature {
+  float fridgeTemperatureC = 1;
+  float freezerTemperatureC = 2;
+}
+
+message FridgeInfo {
+  DeviceInfo deviceInfo = 1;
+  Temperature desiredTemperature = 2;
+  Temperature actualTemperature = 3;
+}
+
+message SetTemperatureRequest {
+  DeviceId deviceId = 1;
+  Temperature newTemperature = 2;
+}
+
+service FridgeService {
+  rpc getFridgeInfo (DeviceId) returns (FridgeInfo) {};
+
+  rpc setDesiredTemperature (SetTemperatureRequest) returns (Empty) {};
+}

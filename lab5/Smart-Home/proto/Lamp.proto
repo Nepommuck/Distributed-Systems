@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "grpc.gen.Lamp";
+option java_outer_classname = "LampProto";
+
+import "proto/Device.proto";
+
+
+enum LampType {
+  STATIC_LAMP = 0;
+  MOVE_DETECTION = 1;
+}
+
+message Brightness {
+  // 0 - 100
+  float brightnessLevel = 1;
+  // 1,500 - 10,000
+  float temperatureK = 2;
+}
+
+message LampInfo {
+  DeviceInfo deviceInfo = 1;
+  LampType lampType = 2;
+  Brightness brightness = 3;
+  float secondsSinceLastMovement = 4;
+}
+
+message SetBrightnessRequest {
+  DeviceId deviceId = 1;
+  Brightness newBrightness = 2;
+}
+
+service LampService {
+  rpc getLampInfo (DeviceId) returns (LampInfo) {};
+
+  rpc setBrightness (SetBrightnessRequest) returns (Empty) {};
+}
