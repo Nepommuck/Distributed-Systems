@@ -1,6 +1,11 @@
 class Command:
     def __init__(
-        self, name: str, argument_count: int, usage: str, description: str, parse_arguments_fun = None,
+        self,
+        name: str,
+        argument_count: int,
+        usage: str,
+        description: str,
+        parse_arguments_fun=None,
     ) -> None:
         self.name = name
         self.argument_count = argument_count
@@ -17,7 +22,7 @@ class Command:
             and self.usage == other.usage
             and self.description == other.description
         )
-    
+
 
 class AvailableCommands:
     def __parse_device_id(args) -> tuple[tuple[int], str]:
@@ -26,12 +31,12 @@ class AvailableCommands:
         except ValueError:
             error = f"DEVICE_ID must be an integer, but was '{args[0]}'"
             return None, error
-        
+
     def __parse_brightness(args) -> tuple[tuple[int, float, float], str]:
         [device_id], error = AvailableCommands.__parse_device_id(args[0])
         if error is not None:
             return None, error
-        
+
         try:
             brightness_level = float(args[1])
         except ValueError:
@@ -42,14 +47,14 @@ class AvailableCommands:
         except ValueError:
             error = f"TEMPERATURE_K must be a float, but was '{args[2]}'"
             return None, error
-        
+
         return (device_id, brightness_level, temperature_k), None
-        
+
     def __parse_temperature(args) -> tuple[tuple[int, float, float], str]:
         [device_id], error = AvailableCommands.__parse_device_id([args[0]])
         if error is not None:
             return None, error
-        
+
         try:
             fridge_temperature = float(args[1])
         except ValueError:
@@ -60,9 +65,9 @@ class AvailableCommands:
         except ValueError:
             error = f"FREEZER_TEMPERATURE must be a float, but was '{args[2]}'"
             return None, error
-        
+
         return (device_id, fridge_temperature, freezer_temperature), None
-        
+
     help = Command(
         name="help",
         argument_count=0,
@@ -84,7 +89,7 @@ class AvailableCommands:
         description="Get selected device details",
         parse_arguments_fun=__parse_device_id,
     )
-        
+
     turn_on = Command(
         name="turn-on",
         argument_count=1,
@@ -141,10 +146,14 @@ class AvailableCommands:
     )
 
     all = [
-        help, 
-        get_all_devices, get_device, 
-        turn_on, turn_off, 
-        lamp_get, lamp_set_brightness,
-        fridge_get, fridge_set_temperature,
+        help,
+        get_all_devices,
+        get_device,
+        turn_on,
+        turn_off,
+        lamp_get,
+        lamp_set_brightness,
+        fridge_get,
+        fridge_set_temperature,
         exit,
     ]

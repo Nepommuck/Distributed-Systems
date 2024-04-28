@@ -2,7 +2,7 @@ package server;
 
 public interface Config {
     String IP_ADDRESS = "127.0.0.5";
-    int PORT = 50051;
+    int DEFAULT_PORT = 50051;
 
     float MIN_BRIGHTNESS_LEVEL = 0;
     float MAX_BRIGHTNESS_LEVEL = 100;

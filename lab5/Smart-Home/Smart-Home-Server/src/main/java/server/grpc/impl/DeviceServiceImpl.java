@@ -8,6 +8,8 @@ import server.model.Device;
 import server.model.exception.NotFoundException;
 import server.model.exception.StateAlreadySetException;
 
+import java.util.Comparator;
+
 public class DeviceServiceImpl extends DeviceServiceGrpc.DeviceServiceImplBase {
     private final DeviceMockService deviceService;
 
@@ -18,7 +20,9 @@ public class DeviceServiceImpl extends DeviceServiceGrpc.DeviceServiceImplBase {
     @Override
     public void getDevices(Empty request, StreamObserver<GetDevicesResponse> responseObserver) {
         var response = GetDevicesResponse.newBuilder().addAllDevices(
-                deviceService.getAll().map(Device::asGrpc).toList()
+                deviceService.getAll()
+                        .sorted(Comparator.comparingInt(Device::id))
+                        .map(Device::asGrpc).toList()
         ).build();
 
         responseObserver.onNext(response);

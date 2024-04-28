@@ -18,11 +18,11 @@ from proto.Fridge_pb2 import Temperature, SetTemperatureRequest
 
 class Repl:
     def __init__(
-            self, 
-            device_service_stub: DeviceServiceStub, 
-            lamp_service_stub: LampServiceStub,
-            fridge_service_stub: FridgeServiceStub,
-        ) -> None:
+        self,
+        device_service_stub: DeviceServiceStub,
+        lamp_service_stub: LampServiceStub,
+        fridge_service_stub: FridgeServiceStub,
+    ) -> None:
         self.__device_service_stub = device_service_stub
         self.__lamp_service_stub = lamp_service_stub
         self.__fridge_service_stub = fridge_service_stub
@@ -39,9 +39,7 @@ class Repl:
             else:
                 self.__handle_user_input(command, validated_arguments)
 
-    def __handle_user_input(
-        self, command: Command, validated_arguments: list
-    ) -> str:
+    def __handle_user_input(self, command: Command, validated_arguments: list) -> str:
         exec = None
 
         if command == AvailableCommands.help:
@@ -82,8 +80,10 @@ class Repl:
             exec = lambda: ResponseParser.parse_empty(
                 self.__lamp_service_stub.setBrightness(
                     SetBrightnessRequest(
-                        deviceId=DeviceId(value=device_id), 
-                        newBrightness=Brightness(brightnessLevel=brightness_level, temperatureK=temperature_K),
+                        deviceId=DeviceId(value=device_id),
+                        newBrightness=Brightness(
+                            brightnessLevel=brightness_level, temperatureK=temperature_K
+                        ),
                     )
                 )
             )
@@ -100,9 +100,9 @@ class Repl:
             exec = lambda: ResponseParser.parse_empty(
                 self.__fridge_service_stub.setDesiredTemperature(
                     SetTemperatureRequest(
-                        deviceId=DeviceId(value=device_id), 
+                        deviceId=DeviceId(value=device_id),
                         newTemperature=Temperature(
-                            fridgeTemperatureC=fridge_temperature, 
+                            fridgeTemperatureC=fridge_temperature,
                             freezerTemperatureC=freezer_temperature,
                         ),
                     )
@@ -117,19 +117,18 @@ class Repl:
             self.__print_error(
                 f"Internal error. Unable to handle valid command `{command.name}`"
             )
-        
+
         if exec is not None:
             try:
                 response = exec()
                 print("gRPC response:", response, sep="\n\n", end="\n\n")
             except RpcError as rpc_error:
-                self.__print_error(f"gRPC ERROR\nSTATUS: {rpc_error.code()}\nDETAILS: {rpc_error.details()}\n")
+                self.__print_error(
+                    f"gRPC ERROR\nSTATUS: {rpc_error.code()}\nDETAILS: {rpc_error.details()}\n"
+                )
 
     def __print_error(cls, error_message: str):
-        sys.stderr.write(Fore.RED + f"ERROR: {error_message}\n" + Style.RESET_ALL)
-
-    def __print_warning(cls, error_message: str):
-        sys.stderr.write(Fore.YELLOW + f"Warning: {error_message}\n" + Style.RESET_ALL)
+        sys.stderr.write(Fore.RED + f"ERROR: {error_message}" + Style.RESET_ALL + "\n")
 
     def __parse_user_input(cls, raw_user_input: str) -> tuple[Command, list, str]:
         """Returns: `(command: Command, validated_arguments: list, error: str)`"""
@@ -174,7 +173,7 @@ class Repl:
                 else invalid_arguments_msg(command, arg_count=len(arguments))
             )
             return command, [], error
-        
+
         parsed_arguments = []
         if command.argument_count > 0:
             parsed_arguments, error = command.parse_arguments_fun(arguments)
