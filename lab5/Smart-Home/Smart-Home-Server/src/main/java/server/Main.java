@@ -11,7 +11,6 @@ import java.util.Optional;
 
 public class Main {
     private static Optional<Integer> parsePort(String[] args) {
-        System.out.println(Arrays.toString(args));
         if (args.length == 0) {
             return Optional.empty();
         } else if (args.length != 1) {
